@@ -26,11 +26,17 @@
 
 #include <memory.h>
 
+#ifndef NULL
+#define NULL 0
+#endif
+
 static const _ThumbInstInfo* decompose_thumb_lookup_instruction(unsigned short instruction, unsigned short nextInstruction)
 {
     /* 10 MS bits are the index into the table. Calculate how much to shift right. */
     const unsigned int SHIFT = (sizeof(short) * 8) - 10;
     unsigned int indexer = instruction >> SHIFT;
+    static _ThumbInstInfo ThumbInfo_BLX = {I_BLX, FLAG_BIG_INST, OT_OFF11, OT_NONE, OT_NONE};
+    static _ThumbInstInfo ThumbInfo_BL = {I_BL, FLAG_BIG_INST, OT_OFF11, OT_NONE, OT_NONE};
     /* A single look up to find the instruction! o(1) */
     indexer = ThumbsIds[indexer];
     if (indexer != 0xff) {
@@ -45,11 +51,11 @@ static const _ThumbInstInfo* decompose_thumb_lookup_instruction(unsigned short i
         
         if (indexer == 0xe800) { /* BLX suffix. */
             if (nextInstruction & 1) return NULL; // If LSB is set, it's undefined.
-            static _ThumbInstInfo ThumbInfo_BLX = {I_BLX, FLAG_BIG_INST, OT_OFF11, OT_NONE, OT_NONE};
+            /*ThumbInfo_BLX = {I_BLX, FLAG_BIG_INST, OT_OFF11, OT_NONE, OT_NONE};*/
             return &ThumbInfo_BLX;
         }
         if (indexer == 0xf800) { /* BL suffix. */
-            static _ThumbInstInfo ThumbInfo_BL = {I_BL, FLAG_BIG_INST, OT_OFF11, OT_NONE, OT_NONE};
+            /*ThumbInfo_BL = {I_BL, FLAG_BIG_INST, OT_OFF11, OT_NONE, OT_NONE};*/
             return &ThumbInfo_BL;
         }
     }

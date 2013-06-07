@@ -51,6 +51,7 @@ static void format_reglist(char* str, unsigned int mask)
     int backup = mask;
     int base = 0;
     int runLength = 0;
+    int j = 0;
     while (!(mask & 1)) base++, mask >>= 1;
     while (mask & 1) runLength++, mask >>= 1;
     if (!mask && runLength > 2) {
@@ -60,7 +61,7 @@ static void format_reglist(char* str, unsigned int mask)
     } else {
         int prev = 0;
         mask = backup;
-        for (int j = 0; mask; j++) {
+        for ( j = 0; mask; j++) {
             if (mask & (1 << j)) {
                 if (prev) strcat(str, ", ");
                 strcat(str, (const char*)_REGISTERS[j]);
@@ -102,7 +103,7 @@ void armstorm_format(const _DecomposeInfo* ci, const _DInst* inst, _TInst* text)
 {
     int isReglist = 0, needComma = 1;
     char* str = text->instruction;
-
+    unsigned int i = 0;
     /* Fill in address. */
     text->address = inst->address;
     
@@ -139,7 +140,7 @@ void armstorm_format(const _DecomposeInfo* ci, const _DInst* inst, _TInst* text)
     }
 
     /* Add the rest of the operands. */
-    for (unsigned int i = 1; ((inst->operands[i].type != OPERAND_NONE) && (i < 3)); i++) {
+    for (i = 1; ((inst->operands[i].type != OPERAND_NONE) && (i < 3)); i++) {
         if (needComma) strcat(str, ", ");
         format_operand(str, &inst->operands[i], inst);
         needComma = 1;
